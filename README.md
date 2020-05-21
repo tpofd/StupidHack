@@ -4,6 +4,7 @@
 
 Like ZOOM, but even worse. 
 
+<div>
         __-------__
       / _---------_ \
      / /           \ \
@@ -16,7 +17,7 @@ Like ZOOM, but even worse.
 [_________|WROOM|_________] 
  ||||    ~~~~~~~~     ||||
  `--'                 `--'
-
+</div>
 
 Hello, we are team The Lobsters and we are happy to take part in hackathon with our level of brain!
 
