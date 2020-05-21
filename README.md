@@ -26,5 +26,5 @@ We are doing video chat with ASCII video coding and midi voice processing. Our g
 WARNING: WE DON'T RECOMMEND PEOPLE WITH EPILEPSY OR NERVOUSNESS USE OUR APP
 
 
-![GitHub Logo](/images/Untitled.png)
+![GitHub Logo](/Untitled.png)
 Format: ![Alt Text](url)
