@@ -18,7 +18,7 @@ Like ZOOM, but even worse.
  `--'                 `--'
 </pre>
 
-* We spent 20 minutes to add this ASCII image to our Readme.md doc
+* We spent 20 minutes to add this ASCII image to our README.md doc
 
 Hello, we are team The Lobsters and we are happy to take part in hackathon with our level of brain!
 
