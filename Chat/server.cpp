@@ -15,6 +15,7 @@
 #include <fcntl.h>
 #include <fstream>
 
+//directed by The Lobsters
 
 #define WIDTH 60
 #define HEIGHT 80
@@ -30,8 +31,9 @@ int main(int argc, char *argv[])
     //grab the port number
     int port = atoi(argv[1]);
     //buffer to send and receive messages with
-    int sum = WIDTH*HEIGHT*2;
+    size_t sum = WIDTH*HEIGHT*2;
     char msg[sum];
+    char* msg1;
 
     //setup a socket and connection tools
     struct sockaddr_in servAddr;
@@ -81,8 +83,10 @@ int main(int argc, char *argv[])
     {
         //receive a message from the client (listen)
         std::cout << "Awaiting client response..." << std::endl;
-        memset(&msg, 0, sizeof(msg));//clear the buffer
+        //memset(&msg, 0, sizeof(msg));//clear the buffer
+        std::cout << 1 << std::endl;
         bytesRead += recv(newSd, (char*)&msg, sizeof(msg), 0);
+        std::cout << 2 << std::endl;
         if(!strcmp(msg, "exit"))
         {
             std::cout << "Client has quit the session" << std::endl;
@@ -90,21 +94,20 @@ int main(int argc, char *argv[])
         }
         std::cout << "Client: " << msg << std::endl;
         std::cout << ">";
-        std::string data;
-        getline(std::cin, data, '\0');
-        memset(&msg, 0, sizeof(msg)); //clear the buffer
-        if(data.size() > sum)
-            strncpy(msg, data.c_str(), sum);
-        else 
-            strcpy(msg, data.c_str());
-        if(data == "exit")
+        //std::string data;
+        getline(&msg1, &sum, stdin);
+        
+        memset(&msg1, 0, sizeof(msg1)); //clear the buffer
+        if(strcmp(msg1,"exit")==0)
         {
             //send to the client that server has closed the connection
-            send(newSd, (char*)&msg, strlen(msg), 0);
+            send(newSd, (char*)&msg1, strlen(msg), 0);
             break;
         }
         //send the message to client
-        bytesWritten += send(newSd, (char*)&msg, strlen(msg), 0);
+        bytesWritten += send(newSd, (char*)&msg1, strlen(msg), 0);
+        free(msg1);
+
     }
     //we need to close the socket descriptors after we're all done
     gettimeofday(&end1, NULL);

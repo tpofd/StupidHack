@@ -15,6 +15,7 @@
 #include <fcntl.h>
 #include <fstream>
 
+//directed by The Lobsters
 
 #define WIDTH 60
 #define HEIGHT 80
@@ -29,8 +30,8 @@ int main(int argc, char *argv[])
     } //grab the IP address and port number
     char *serverIp = argv[1]; int port = atoi(argv[2]);
     //create a message buffer
-    int sum = WIDTH * HEIGHT*2;
-    char msg[sum];
+    size_t sum = WIDTH * HEIGHT*2;
+    char *msg;
     //setup a socket and connection tools
     struct hostent* host = gethostbyname(serverIp);
     struct sockaddr_in sendSockAddr;
@@ -54,14 +55,12 @@ int main(int argc, char *argv[])
     while(1)
     {
         std::cout << ">";
-        std::string data;
-        getline(std::cin, data, '\0');
+        //std::string data;
+        //getline(std::cin, data);
+        getline(&msg, &sum, stdin);
+        getchar();
         memset(&msg, 0, sizeof(msg));//clear the buffer
-        if(data.size() > sum)
-            strncpy(msg, data.c_str(), sum);
-        else 
-            strcpy(msg, data.c_str());
-        if(data == "exit")
+        if(strcmp(msg, "exit") ==  0)
         {
             send(clientSd, (char*)&msg, strlen(msg), 0);
             break;
@@ -76,9 +75,10 @@ int main(int argc, char *argv[])
             break;
         }
         std::cout << "Server: " << msg << std::endl;
-        memset(&msg, 0, sizeof(msg));
+        free(msg);
     }
     std::cout << "Connection closed" << std::endl;
+   
     return 0;
 }
 

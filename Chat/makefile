@@ -11,9 +11,9 @@ OBJ_SERVER = server.o
 all: client server
 
 client:
-	$(CC) $(CLIENT) -o $(OBJ_CLIENT)
+	$(CC) $(CLIENT) -o $(OBJ_CLIENT) -g
 server:
-	$(CC) $(SERVER) -o $(OBJ_SERVER)
+	$(CC) $(SERVER) -o $(OBJ_SERVER) -g
 run:
 	./$(OBJ_CLIENT) $(SERVER_IP) $(PORT_NUM)
 clean:
