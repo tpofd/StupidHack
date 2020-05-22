@@ -16,6 +16,8 @@
 #include <fstream>
 
 
+#define WIDTH 60
+#define HEIGHT 80
 //Server side
 int main(int argc, char *argv[])
 {
@@ -28,7 +30,8 @@ int main(int argc, char *argv[])
     //grab the port number
     int port = atoi(argv[1]);
     //buffer to send and receive messages with
-    char msg[1500];
+    int sum = WIDTH*HEIGHT*2;
+    char msg[sum];
 
     //setup a socket and connection tools
     struct sockaddr_in servAddr;
@@ -88,9 +91,12 @@ int main(int argc, char *argv[])
         std::cout << "Client: " << msg << std::endl;
         std::cout << ">";
         std::string data;
-        getline(std::cin, data);
+        getline(std::cin, data, '\0');
         memset(&msg, 0, sizeof(msg)); //clear the buffer
-        strcpy(msg, data.c_str());
+        if(data.size() > sum)
+            strncpy(msg, data.c_str(), sum);
+        else 
+            strcpy(msg, data.c_str());
         if(data == "exit")
         {
             //send to the client that server has closed the connection

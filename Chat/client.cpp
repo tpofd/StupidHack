@@ -15,6 +15,10 @@
 #include <fcntl.h>
 #include <fstream>
 
+
+#define WIDTH 60
+#define HEIGHT 80
+
 //Client side
 int main(int argc, char *argv[])
 {
@@ -25,7 +29,8 @@ int main(int argc, char *argv[])
     } //grab the IP address and port number
     char *serverIp = argv[1]; int port = atoi(argv[2]);
     //create a message buffer
-    char msg[1500];
+    int sum = WIDTH * HEIGHT*2;
+    char msg[sum];
     //setup a socket and connection tools
     struct hostent* host = gethostbyname(serverIp);
     struct sockaddr_in sendSockAddr;
@@ -45,14 +50,17 @@ int main(int argc, char *argv[])
     }
     std::cout << "Connected to the server!" << std::endl;
 
-
+    
     while(1)
     {
         std::cout << ">";
         std::string data;
-        getline(std::cin, data);
+        getline(std::cin, data, '\0');
         memset(&msg, 0, sizeof(msg));//clear the buffer
-        strcpy(msg, data.c_str());
+        if(data.size() > sum)
+            strncpy(msg, data.c_str(), sum);
+        else 
+            strcpy(msg, data.c_str());
         if(data == "exit")
         {
             send(clientSd, (char*)&msg, strlen(msg), 0);
@@ -68,6 +76,7 @@ int main(int argc, char *argv[])
             break;
         }
         std::cout << "Server: " << msg << std::endl;
+        memset(&msg, 0, sizeof(msg));
     }
     std::cout << "Connection closed" << std::endl;
     return 0;
