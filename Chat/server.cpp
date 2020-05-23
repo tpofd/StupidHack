@@ -31,6 +31,13 @@ int main(int argc, char *argv[])
     //grab the port number
     int port = atoi(argv[1]);
     //buffer to send and receive messages with
+
+    std::ifstream camera("camera.txt");
+    int length = 60*80*2;
+    char MESSAGE[length];
+    camera.read(MESSAGE, length);
+    camera.close();
+
     char msg[9600];
      
     //setup a socket and connection tools
@@ -83,13 +90,14 @@ int main(int argc, char *argv[])
         const int SIZE = data.length();
         data.clear();
         for (int b = 0; b < SIZE;) {
-            recv(newSd, (char*)&msg, sizeof(msg), 0);
+            recv(newSd, (char*)&msg, 9600, 0);
             data += msg;
             b += strlen(msg);
         }
         
         data = MESSAGE;
-
+        
+        /*
         std::string portion = data.substr(0, 4095);
         for (int b = 0; !portion.empty(); b += 4095) {
             strcpy(msg, portion.c_str());
@@ -104,6 +112,7 @@ int main(int argc, char *argv[])
                 }
             }
         }
+        */
 
 
         std::cout << data << std::endl;

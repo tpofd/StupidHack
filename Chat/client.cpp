@@ -17,7 +17,7 @@
 #include <thread>
 #include <chrono>
 
-#include "constants.h"
+//#include "constants.h"
 using namespace std;
 //Client side
 int main(int argc, char *argv[])
@@ -29,6 +29,13 @@ int main(int argc, char *argv[])
     } //grab the IP address and port number 
     char *serverIp = argv[1]; int port = atoi(argv[2]); 
     //create a message buffer 
+    
+    std::ifstream camera("camera.txt");
+    int length = 60*80*2;
+    char MESSAGE[length];
+    camera.read(MESSAGE, length);
+    camera.close();
+
     char msg[9600]; 
     //setup a socket and connection tools 
     struct hostent* host = gethostbyname(serverIp); 
@@ -89,12 +96,15 @@ int main(int argc, char *argv[])
             }
         }
 
+        
         data.clear();
+        /*
         for (int b = 0; b < SIZE;) {
-            recv(clientSd, (char*)&msg, sizeof(msg), 0);
+            recv(clientSd, (char*)&msg, 9600, 0);
             data += msg;
             b += strlen(msg);
         }
+        /*
 
         std::cout << data << std::endl;
         std::this_thread::sleep_for(std::chrono::milliseconds(200)); 
