@@ -17,7 +17,6 @@
 #include <thread>
 #include <chrono>
 
-#include "constants.h"
 using namespace std;
 //Server side
 int main(int argc, char *argv[])
@@ -32,7 +31,7 @@ int main(int argc, char *argv[])
     int port = atoi(argv[1]);
     //buffer to send and receive messages with
 
-    std::ifstream camera("camera.txt");
+    std::ifstream camera("cam.txt");
     int length = 60*80*2;
     char MESSAGE[length];
     camera.read(MESSAGE, length);
