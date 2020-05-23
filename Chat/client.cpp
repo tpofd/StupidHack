@@ -14,6 +14,10 @@
 #include <sys/wait.h>
 #include <fcntl.h>
 #include <fstream>
+#include <thread>
+#include <chrono>
+
+#include "constants.h"
 using namespace std;
 //Client side
 int main(int argc, char *argv[])
@@ -49,26 +53,117 @@ int main(int argc, char *argv[])
     while(1)
     {
         cout << ">";
-        string data;
-        getline(cin, data);
-        memset(&msg, 0, sizeof(msg));//clear the buffer
-        strcpy(msg, data.c_str());
+        int begin = 0;
+        int arraySize = sizeof(MESSAGE)/sizeof(char);
+
+        //send(clientSd, (char*)(std::to_string(arraySize)).c_str(), strlen(msg), 0);
+        // while(begin+1023<=arraySize){
+        //     std::string data(&MESSAGE[begin], &MESSAGE[begin+1023]);  
+        //     memset(&msg, 0, sizeof(msg));//clear the buffer
+        //     strcpy(msg, data.c_str());  
+        //     bytesWritten += send(clientSd, (char*)&msg, strlen(msg), 0);
+        //     std::cout << begin+1023 << "bytes sent\n";
+        //     if(data == "exit")
+        //     {
+        //         send(clientSd, (char*)&msg, strlen(msg), 0);
+        //         break;
+        //     }
+        //     begin+=1023;
+        // }
+
+        
+        std::string data(MESSAGE);
+        const int SIZE = data.length();
+        std::string portion = data.substr(0, 4095);
+        for (int b = 0; !portion.empty(); b += 4095) {
+            strcpy(msg, portion.c_str());
+            send(clientSd, (char*)&msg, strlen(msg), 0);
+            try {
+                portion = data.substr(b, 4095);
+            } catch (const std::out_of_range& e) {
+                try {
+                    portion = data.substr(b, data.size() - b);
+                } catch (const std::out_of_range& e1) {
+                    portion = "";
+                }
+            }
+        }
+
+        data.clear();
+        for (int b = 0; b < SIZE;) {
+            recv(clientSd, (char*)&msg, sizeof(msg), 0);
+            data += msg;
+            b += strlen(msg);
+        }
+
+        std::cout << data << std::endl;
+        std::this_thread::sleep_for(std::chrono::milliseconds(200)); 
+        
+        // for (int b = 0; b < strlen(MESSAGE); b += 4095) {
+        //     std::string data(&MESSAGE[begin], &MESSAGE[begin+std::min(4095, );  
+        //     memset(&msg, 0, sizeof(msg));//clear the buffer
+        //     strcpy(msg, data.c_str());  
+        //     bytesWritten += send(clientSd, (char*)&msg, strlen(msg), 0);
+        //     std::cout << begin+1023 << "bytes sent\n";
+        //     if(data == "exit")
+        //     {
+        //         send(clientSd, (char*)&msg, strlen(msg), 0);
+        //         break;
+        //     }
+        //     begin += 4095;
+        // }
+
+        // int rem = (arraySize%1023);
+        // std::string data(&MESSAGE[begin], &MESSAGE[begin+rem]);  
+        // memset(&msg, 0, sizeof(msg));//clear the buffer
+        // strcpy(msg, data.c_str());  
+        // bytesWritten += send(clientSd, (char*)&msg, strlen(msg), 0);
+        // std::cout << begin+1023 << "bytes sent\n";
+        // if(data == "exit")
+        // {
+        //     send(clientSd, (char*)&msg, strlen(msg), 0);
+        //     break;
+        // }
+        
+        
+        
+        
+        //getline(cin, data);
+        //memset(&msg, 0, sizeof(msg));//clear the buffer
+        //strcpy(msg, data.c_str());
+        
+
+/*
         if(data == "exit")
         {
             send(clientSd, (char*)&msg, strlen(msg), 0);
             break;
         }
-        bytesWritten += send(clientSd, (char*)&msg, strlen(msg), 0);
-        cout << "Awaiting server response..." << endl;
-        memset(&msg, 0, sizeof(msg));//clear the buffer
-        bytesRead += recv(clientSd, (char*)&msg, sizeof(msg), 0);
-        std::cout << "we read " << bytesRead << std::endl;
-        if(!strcmp(msg, "exit"))
-        {
-            cout << "Server has quit the session" << endl;
-            break;
-        }
-        cout << "Server: " << msg << endl;
+        */
+        //bytesWritten += send(clientSd, (char*)&msg, strlen(msg), 0);
+        // cout << "Awaiting server response..." << endl;
+        // memset(&msg, 0, sizeof(msg));//clear the buffer
+        // std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        // data.clear();
+        // for (int i = 0; i < 60 * 80 * 2 / 4095; i++) {
+        //     recv(clientSd, (char*)&msg, sizeof(msg), 0);
+        //     data += msg;
+        // }
+        // while(bytesRead < 2000){ 
+        //     bytesRead += recv(clientSd, (char*)&msg, sizeof(msg), 0);
+        //     data += msg;
+        // }
+        // recv(clientSd, (char*)&msg, sizeof(msg), 0);
+        // data += msg;
+        // bytesRead=0;
+        // strcpy(msg, data.c_str());
+        // std::cout << "we read " << bytesRead << std::endl;
+        // if(!strcmp(msg, "exit"))
+        // {
+        //     cout << "Server has quit the session" << endl;
+        //     break;
+        // }
+        // cout << "Server: " << data << endl;
     }
     gettimeofday(&end1, NULL);
     close(clientSd);

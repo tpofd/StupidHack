@@ -14,6 +14,10 @@
 #include <sys/wait.h>
 #include <fcntl.h>
 #include <fstream>
+#include <thread>
+#include <chrono>
+
+#include "constants.h"
 using namespace std;
 //Server side
 int main(int argc, char *argv[])
@@ -75,29 +79,87 @@ int main(int argc, char *argv[])
     int bytesRead, bytesWritten = 0;
     while(1)
     {
-        //receive a message from the client (listen)
-        cout << "Awaiting client response..." << endl;
-        memset(&msg, 0, sizeof(msg));//clear the buffer
-        bytesRead += recv(newSd, (char*)&msg, sizeof(msg), 0);
-        if(!strcmp(msg, "exit"))
-        {
-            cout << "Client has quit the session" << endl;
-            break;
+        std::string data(MESSAGE);
+        const int SIZE = data.length();
+        data.clear();
+        for (int b = 0; b < SIZE;) {
+            recv(newSd, (char*)&msg, sizeof(msg), 0);
+            data += msg;
+            b += strlen(msg);
         }
-        cout << "Client: " << msg << endl;
-        cout << ">";
-        string data;
-        getline(cin, data);
-        memset(&msg, 0, sizeof(msg)); //clear the buffer
-        strcpy(msg, data.c_str());
-        if(data == "exit")
-        {
-            //send to the client that server has closed the connection
+        
+        data = MESSAGE;
+
+        std::string portion = data.substr(0, 4095);
+        for (int b = 0; !portion.empty(); b += 4095) {
+            strcpy(msg, portion.c_str());
             send(newSd, (char*)&msg, strlen(msg), 0);
-            break;
+            try {
+                portion = data.substr(b, 4095);
+            } catch (const std::out_of_range& e) {
+                try {
+                    portion = data.substr(b, data.size() - b);
+                } catch (const std::out_of_range& e1) {
+                    portion = "";
+                }
+            }
         }
-        //send the message to client
-        bytesWritten += send(newSd, (char*)&msg, strlen(msg), 0);
+
+
+        std::cout << data << std::endl;
+        std::this_thread::sleep_for(std::chrono::milliseconds(200)); 
+        // //receive a message from the client (listen)
+        // cout << "Awaiting client response..." << endl;
+        // memset(&msg, 0, sizeof(msg));//clear the buffer
+        // while(bytesRead < 2000){
+        //     bytesRead += recv(newSd, (char*)&msg, sizeof(msg), 0);
+        // }
+        // bytesRead=0;
+        
+        // //int arraySize = std::atoi(msg);
+        // //std::cout << "ARRAY SIZE: " << msg<<std::endl;
+        // //std::cout << "ARRAY SIZE: " << arraySize<<std::endl;
+
+        // if(!strcmp(msg, "exit"))
+        // {
+        //     cout << "Client has quit the session" << endl;
+        //     break;
+        // }
+        // cout << "Client:\n" << msg << endl;
+        // cout << ">";
+        // string data;
+        // int begin = 0;
+        // int arraySize = sizeof(MESSAGE)/sizeof(char);
+
+        // //send(newSd, (char*)(std::to_string(arraySize)).c_str(), strlen(msg), 0);
+        // while(begin+1023<=arraySize){
+        //     std::string data(&MESSAGE[begin], &MESSAGE[begin+1023]);  
+        //     memset(&msg, 0, sizeof(msg));//clear the buffer
+        //     strcpy(msg, data.c_str()); 
+        //     
+        //     bytesWritten += send(newSd, (char*)&msg, strlen(msg), 0);
+        //     std::cout << begin+1023 << "bytes sent\n";
+        //     if(data == "exit")
+        //     {
+        //         send(newSd, (char*)&msg, strlen(msg), 0);
+        //         break;
+        //     }
+        //     begin+=1023;
+        // }
+        
+        // getline(cin, data);
+        // memset(&msg, 0, sizeof(msg)); //clear the buffer
+        // strcpy(msg, data.c_str());
+        // if(data == "exit")
+        // {
+        //     //send to the client that server has closed the connection
+        //     send(newSd, (char*)&msg, strlen(msg), 0);
+        //     break;
+        // }
+        // //send the message to client
+        // bytesWritten += send(newSd, (char*)&msg, strlen(msg), 0);
+        
+        
     }
     //we need to close the socket descriptors after we're all done
     gettimeofday(&end1, NULL);
