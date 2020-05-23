@@ -2,7 +2,7 @@
 
 ## WROOM-WROOM APP
 
-Like ZOOM, but even worse. 
+Like ZOOM but even worse. 
 
 <pre class=""> 
         __---------__
