@@ -1,7 +1,6 @@
-import numpy as np
-import cv2
-
 from os import system
+
+import cv2
 
 PIXWIDTH = 640
 PIXHEIGHT = 480
@@ -16,10 +15,11 @@ pixmap = '   ..,,""||iiIIOO##00YYXX@@'
 maplen = int(len(pixmap) / 2) * 2
 
 cap = cv2.VideoCapture(0)
-cap.set(3, PIXWIDTH);
-cap.set(4, PIXHEIGHT);
-
-while(True):
+cap.set(3, PIXWIDTH)
+cap.set(4, PIXHEIGHT)
+file1 = open("cam.txt", "w")
+a = ''
+while (True):
     # Capture frame-by-frame
     ret, frame = cap.read()
 
@@ -36,13 +36,15 @@ while(True):
             x2 = x1 + pWidth
             piece = gray[y1:y2, x1:x2]
             value = int(piece.mean() * (maplen / 256))
-            screen[-1].append(pixmap[value:value+2])
+            screen[-1].append(pixmap[value:value + 2])
 
     for row in screen:
-        print(''.join(row))
-
-    system("sleep 0.01")
-
+        a += ''.join(row)
+    file1.write(a)
+    file1.close()
+    system("./client.o 40.113.19.1 8080")
+    # system('cls')
+    # system("pause")
 # When everything done, release the capture
 cap.release()
 cv2.destroyAllWindows()
