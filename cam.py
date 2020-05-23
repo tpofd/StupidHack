@@ -17,7 +17,6 @@ maplen = int(len(pixmap) / 2) * 2
 cap = cv2.VideoCapture(0)
 cap.set(3, PIXWIDTH)
 cap.set(4, PIXHEIGHT)
-
 a = ''
 while (True):
     file1 = open("cam.txt", "w")
