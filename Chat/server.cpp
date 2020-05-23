@@ -14,51 +14,45 @@
 #include <sys/wait.h>
 #include <fcntl.h>
 #include <fstream>
-
-//directed by The Lobsters
-
-#define WIDTH 60
-#define HEIGHT 80
+using namespace std;
 //Server side
 int main(int argc, char *argv[])
 {
     //for the server, we only need to specify a port number
     if(argc != 2)
     {
-        std::cerr << "Usage: port" << std::endl;
+        cerr << "Usage: port" << endl;
         exit(0);
     }
     //grab the port number
     int port = atoi(argv[1]);
     //buffer to send and receive messages with
-    size_t sum = WIDTH*HEIGHT*2;
-    char msg[sum];
-    char* msg1;
-
+    char msg[9600];
+     
     //setup a socket and connection tools
-    struct sockaddr_in servAddr;
+    sockaddr_in servAddr;
     bzero((char*)&servAddr, sizeof(servAddr));
     servAddr.sin_family = AF_INET;
     servAddr.sin_addr.s_addr = htonl(INADDR_ANY);
     servAddr.sin_port = htons(port);
-
+ 
     //open stream oriented socket with internet address
     //also keep track of the socket descriptor
     int serverSd = socket(AF_INET, SOCK_STREAM, 0);
     if(serverSd < 0)
     {
-        std::cerr << "Error establishing the server socket" << std::endl;
+        cerr << "Error establishing the server socket" << endl;
         exit(0);
     }
     //bind the socket to its local address
-    int bindStatus = bind(serverSd, (struct sockaddr*) &servAddr,
-                          sizeof(servAddr));
+    int bindStatus = bind(serverSd, (struct sockaddr*) &servAddr, 
+        sizeof(servAddr));
     if(bindStatus < 0)
     {
-        std::cerr << "Error binding socket to local address" << std::endl;
+        cerr << "Error binding socket to local address" << endl;
         exit(0);
     }
-    std::cout << "Waiting for a client to connect..." << std::endl;
+    cout << "Waiting for a client to connect..." << endl;
     //listen for up to 5 requests at a time
     listen(serverSd, 5);
     //receive a request from client using accept
@@ -70,10 +64,10 @@ int main(int argc, char *argv[])
     int newSd = accept(serverSd, (sockaddr *)&newSockAddr, &newSockAddrSize);
     if(newSd < 0)
     {
-        std::cerr << "Error accepting request from client!" << std::endl;
+        cerr << "Error accepting request from client!" << endl;
         exit(1);
     }
-    std::cout << "Connected with client!" << std::endl;
+    cout << "Connected with client!" << endl;
     //lets keep track of the session time
     struct timeval start1, end1;
     gettimeofday(&start1, NULL);
@@ -82,41 +76,37 @@ int main(int argc, char *argv[])
     while(1)
     {
         //receive a message from the client (listen)
-        std::cout << "Awaiting client response..." << std::endl;
-        //memset(&msg, 0, sizeof(msg));//clear the buffer
-        std::cout << 1 << std::endl;
+        cout << "Awaiting client response..." << endl;
+        memset(&msg, 0, sizeof(msg));//clear the buffer
         bytesRead += recv(newSd, (char*)&msg, sizeof(msg), 0);
-        std::cout << 2 << std::endl;
         if(!strcmp(msg, "exit"))
         {
-            std::cout << "Client has quit the session" << std::endl;
+            cout << "Client has quit the session" << endl;
             break;
         }
-        std::cout << "Client: " << msg << std::endl;
-        std::cout << ">";
-        //std::string data;
-        getline(&msg1, &sum, stdin);
-        
-        memset(&msg1, 0, sizeof(msg1)); //clear the buffer
-        if(strcmp(msg1,"exit")==0)
+        cout << "Client: " << msg << endl;
+        cout << ">";
+        string data;
+        getline(cin, data);
+        memset(&msg, 0, sizeof(msg)); //clear the buffer
+        strcpy(msg, data.c_str());
+        if(data == "exit")
         {
             //send to the client that server has closed the connection
-            send(newSd, (char*)&msg1, strlen(msg), 0);
+            send(newSd, (char*)&msg, strlen(msg), 0);
             break;
         }
         //send the message to client
-        bytesWritten += send(newSd, (char*)&msg1, strlen(msg), 0);
-        free(msg1);
-
+        bytesWritten += send(newSd, (char*)&msg, strlen(msg), 0);
     }
     //we need to close the socket descriptors after we're all done
     gettimeofday(&end1, NULL);
     close(newSd);
     close(serverSd);
-    std::cout << "********Session********" << std::endl;
-    std::cout << "Bytes written: " << bytesWritten << " Bytes read: " << bytesRead << std::endl;
-    std::cout << "Elapsed time: " << (end1.tv_sec - start1.tv_sec)
-              << " secs" << std::endl;
-    std::cout << "Connection closed..." << std::endl;
-    return 0;
+    cout << "********Session********" << endl;
+    cout << "Bytes written: " << bytesWritten << " Bytes read: " << bytesRead << endl;
+    cout << "Elapsed time: " << (end1.tv_sec - start1.tv_sec) 
+        << " secs" << endl;
+    cout << "Connection closed..." << endl;
+    return 0;   
 }
